@@ -3,35 +3,33 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 words_dict = {}
-fp = open("words_list_3.txt", "r")
-for k in fp.readlines():
-    i = k.strip()
-    # 匹配空格以前的内容
-    word = re.match(".+( )", i)
-    # 把空格及空格以前的内容删除，留下后面的词性标识
-    flag = re.sub(".+( )", "", i)
-    if flag == "n":
-        if word.group(0) in words_dict:
-            words_dict[word.group(0)] += 1
-        else:
-            words_dict[word.group(0)] = 1
-fp.close()
-
+with open("words_list_3.txt", "r") as fp:
+    for k in fp.readlines():
+        i = k.strip()
+        # 匹配空格以前的内容
+        word = re.match(".+( )", i)
+        # 把空格及空格以前的内容删除，留下后面的词性标识
+        flag = re.sub(".+( )", "", i)
+        if flag == "n":
+            if word.group(0) in words_dict:
+                words_dict[word.group(0)] += 1
+            else:
+                words_dict[word.group(0)] = 1
 print("the dict is finished\n")
 
-sort_list = []
-for key, value in words_dict.items():
-    if value > 20 and len(key) > 2:
-        sort_list.append((value, key))
-sort_list.sort(reverse=True)
-fp = open("sort_by_名词.txt", "w")
-for value, key in sort_list:
-    fp.writelines(str(key)+"---"+str(value)+"\n")
-fp.close()
+sort_list = [
+    (value, key)
+    for key, value in words_dict.items()
+    if value > 20 and len(key) > 2
+]
 
+sort_list.sort(reverse=True)
+with open("sort_by_名词.txt", "w") as fp:
+    for value, key in sort_list:
+        fp.writelines(f'{str(key)}---{str(value)}' + "\n")
 # 利用关键词制作图云：
 font = r'C:\Windows\Fonts\simfang.ttf'
-txt = ''.join([v + ',' for v, x in words_dict.items()])
+txt = ''.join([f'{v},' for v in words_dict])
 wordcloud = WordCloud(background_color='white', width=1000, height=700, font_path=font, max_font_size=100).generate(txt)
 plt.imshow(wordcloud)
 plt.axis('off')
